@@ -1,1 +1,0 @@
-import{v as r}from"./index-B_QDyJHJ.js";function o(e=10){return r({url:"/recommendations",method:"get",params:{limit:e}})}function a(e=10){return r({url:"/recommendations/popular",method:"get",params:{limit:e}})}export{o as a,a as g};
