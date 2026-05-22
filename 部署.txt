@@ -1,0 +1,20 @@
+  问题：登录报"系统繁忙，请稍后重试"，原因是 Spring Boot 连接 Redis 时始终使用 localhost:6379，而不是 redis:6379。      
+  排查过程：                                                                                                                                                      age
+  1. 确认 prod profile 已激活 ✅ — 日志显示 The following 1 profile is active: "prod"
+  2. 确认 application.yml 中 prod 配置正确 ✅ — 多文档 YAML 中 on-profile: prod 段设了 redis.host: redis
+  3. 确认 SPRING_REDIS_HOST=redis 环境变量已设置 ✅ — 在容器内通过 env 确认
+  4. 确认容器网络连通 ✅ — ping redis 成功，DNS 解析正常
+  5. 确认命令行参数 --spring.redis.host=redis 已传入 ✅ — docker inspect 确认
+  6. 确认没有自定义 RedisConnectionFactory 覆盖 ✅ — 代码审查确认
+  7. 确认 jar 内的配置与源码一致 ✅ — unzip -p app.jar 提取确认
+
+  所有配置都对，但就是连 localhost，说明 Spring Boot 自动配置 RedisConnectionFactory 时存在属性绑定问题。
+
+  解决方案：跳过 Spring Boot 的 Redis 自动配置，手动创建 RedisConnectionFactory。修改了 RedisConfig.java：
+
+  - 使用 @Value("${spring.redis.host:localhost}") 显式注入配置值
+  - 用 RedisStandaloneConfiguration + LettuceConnectionFactory 手动创建连接工厂
+  - 替换自动配置的 RedisConnectionFactory bean
+
+  改动的文件：
+  - RedisConfig.java — 手动创建连接工厂，绕过自动配置

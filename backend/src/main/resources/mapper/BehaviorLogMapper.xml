@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ecommerce.mapper.BehaviorLogMapper">
+
+    <insert id="batchInsert">
+        INSERT INTO behavior_log (user_id, path, method, params, ip, user_agent, duration, status_code, product_id, category_id, referer, created_at)
+        VALUES
+        <foreach collection="logs" item="log" separator=",">
+            (#{log.userId}, #{log.path}, #{log.method}, #{log.params}, #{log.ip}, #{log.userAgent}, #{log.duration}, #{log.statusCode}, #{log.productId}, #{log.categoryId}, #{log.referer}, NOW())
+        </foreach>
+    </insert>
+
+</mapper>
